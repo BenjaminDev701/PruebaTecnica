@@ -1,3 +1,6 @@
+from fastapi.exceptions import HTTPException
+from src.schemas.responses import ChatResponse
+from src.services.ai_service import generate_content
 from src.schemas.request import ExecuteRequest
 from fastapi import FastAPI
 from dotenv import load_dotenv
@@ -14,7 +17,10 @@ async def execute_task(request: ExecuteRequest):
     # Obtenemos el texto del libro
     texto_del_libro = await get_book_context(request.book_id, request.section_id)
 
-    return {
-        "status": "Éxito",
-        "texto_recuperado": texto_del_libro
-    }
+    if request.action == "chat":
+        respuesta_ia = await generate_content(texto_del_libro, request.instructions)
+        return ChatResponse(
+            action="chat",
+            answer=respuesta_ia
+        )
+    raise HTTPException(status_code=400, detail="Acción no soportada todavía")

@@ -1,5 +1,6 @@
 import httpx
 from src.config import CONTEXT_SERVICE_URL
+from fastapi import HTTPException
 
 
 async def get_book_context(book_id: str, section_id: str) -> str:
@@ -10,15 +11,19 @@ async def get_book_context(book_id: str, section_id: str) -> str:
         "section_id": section_id
     }
 
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(url, json=payload, timeout=10.0)
-            # lanzamos error si es de tipo 400 o 500
-            response.raise_for_status()
-            # lo que recibimos esta en formato json y lo parseamos para pasarlo a un diccionario
-            data = response.json()
-            return data.get("content", "")
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url, json=payload, timeout=10.0)
+        if response.status_code != 200:
+            error_data = response.json().get("error", {})
+            error_code = error_data.get("code", "CONTEXT_ERROR")
+            error_msg = error_data.get(
+                "message", "Error al consultar el servicio de contexto")
+        # Lanzamos un error que será atrapado
+            raise HTTPException(
+                status_code=response.status_code,
+                detail={"code": error_code, "message": error_msg}
+            )
 
-    except Exception as error:
-        # atrapamos el error
-        return f"ERROR_DETECTADO: {str(error)} , TIPO_DE_ERROR: {type(error)} , URL_INTENTADA: {url}"
+    # lo que recibimos esta en formato json y lo parseamos para pasarlo a un diccionario
+    data = response.json()
+    return data.get("content", "")
