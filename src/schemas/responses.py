@@ -1,9 +1,9 @@
-from typing import List
+from typing import List, Literal
 from pydantic import BaseModel
 
 
 class ChatResponse(BaseModel):
-    action: str
+    action: Literal["chat"]
     answer: str
 
 
@@ -15,14 +15,14 @@ class Question(BaseModel):
 
 
 class QuizResponse(BaseModel):
-    action: str
+    action: Literal["quiz"]
     title: str
     instructions: str
     questions: List[Question]
 
 
 class ActivityResponse(BaseModel):
-    action: str
+    action: Literal["activity"]
     title: str
     objective: str
     instructions: List[str]

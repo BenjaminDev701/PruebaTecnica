@@ -1,6 +1,7 @@
 
 from openai import AsyncOpenAI
 from src.config import OPENAI_API_KEY
+from src.schemas.responses import QuizResponse, ActivityResponse
 
 
 client = AsyncOpenAI(api_key=OPENAI_API_KEY)
@@ -30,3 +31,59 @@ async def generate_content(context_text: str, instructions: str) -> str:
     )
 
     return response.choices[0].message.content
+
+
+async def generate_quiz(context_text: str, instructions: str) -> QuizResponse:
+    system_prompt = f"""
+    Eres un diseñador instruccional experto.
+    Tu tarea es generar un quiz educativo basado ÚNICAMENTE en el texto proporcionado.
+    Adapta el quiz a las instrucciones del usuario (ej. cantidad de preguntas, dificultad).
+
+    REGLAS:
+    - Todas las preguntas y respuestas DEBEN extraerse de este texto.
+    - Las opciones incorrectas (distractores) deben ser plausibles pero claramente falsas según el texto.
+
+    TEXTO DE CONTEXTO:
+    {context_text}    
+    """
+
+# parse: nos permite obtener la respuesta del modelo en formato json y de esa manera pasarlo a un diccionario
+    response = await client.chat.completions.parse(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": instructions}
+        ],
+        # le indicamos el formato de la respuesta
+        response_format=QuizResponse,
+        temperature=0.0
+    )
+
+    return response.choices[0].message.parsed
+
+
+async def generate_activity(context_text: str, instructions: str) -> ActivityResponse:
+    system_prompt = f"""
+    Eres un diseñador instruccional experto.
+    Tu tarea es diseñar una actividad educativa interactiva basada ÚNICAMENTE en el texto proporcionado.
+    Adapta la actividad a las instrucciones del usuario (ej. trabajo en equipo, tiempo).
+
+    REGLAS:
+    - El objetivo, las instrucciones paso a paso y el resultado esperado DEBEN fundamentarse en el contexto.
+    - No agregues conceptos externos que no se mencionen en el texto.
+
+    TEXTO DE CONTEXTO:
+    {context_text}
+    """
+
+    response = await client.chat.completions.parse(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": instructions}
+        ],
+        response_format=ActivityResponse,
+        temperature=0.0
+    )
+
+    return response.choices[0].message.parsed

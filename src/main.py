@@ -1,3 +1,5 @@
+from src.services.ai_service import generate_activity
+from src.services.ai_service import generate_quiz
 from fastapi.exceptions import HTTPException
 from src.schemas.responses import ChatResponse
 from src.services.ai_service import generate_content
@@ -23,4 +25,13 @@ async def execute_task(request: ExecuteRequest):
             action="chat",
             answer=respuesta_ia
         )
+
+    elif request.action == "quiz":
+        quiz_ia = await generate_quiz(texto_del_libro, request.instructions)
+        return quiz_ia
+
+    elif request.action == "activity":
+        activity_ia = await generate_activity(texto_del_libro, request.instructions)
+        return activity_ia
+
     raise HTTPException(status_code=400, detail="Acción no soportada todavía")
