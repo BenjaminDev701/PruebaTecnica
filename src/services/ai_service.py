@@ -22,7 +22,7 @@ async def generate_content(context_text: str, instructions: str) -> str:
     {context_text}"""
 
     response = await client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4.1-mini",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": instructions}
@@ -49,7 +49,7 @@ async def generate_quiz(context_text: str, instructions: str) -> QuizResponse:
 
 # parse: nos permite obtener la respuesta del modelo en formato json y de esa manera pasarlo a un diccionario
     response = await client.chat.completions.parse(
-        model="gpt-4o-mini",
+        model="gpt-4.1-mini",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": instructions}
@@ -77,7 +77,7 @@ async def generate_activity(context_text: str, instructions: str) -> ActivityRes
     """
 
     response = await client.chat.completions.parse(
-        model="gpt-4o-mini",
+        model="gpt-4.1-mini",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": instructions}
