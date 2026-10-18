@@ -122,3 +122,9 @@ Desde la interfaz de Swagger puedes cunado presionas Try it out en el endpoint `
   "instructions": "Crea una actividad grupal para entender la fórmula general"
 }
 ```
+## Ejecución de pruebas
+
+Con el entorno virtual activado, ejecuta:
+
+```bash
+pytest -q
